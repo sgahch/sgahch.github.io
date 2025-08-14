@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>文章标题 | Ynchen Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="Redis有哪些基本数据类型?常见应用场景呢？string 缓存对象（JSON&#x2F;XML）、计数器（访问量、点赞数）、分布式锁（setnx），验证码、Session hash 用做传输对象的存储、存储用户信息（id、name、email）、购物车、配置表 list 可以用来做消息队列，存放消息，做顺序存储 set 存相同属性的数据 ，标签（去重）、共同好友、抽奖、随机推荐 zset  排行">
+<meta property="og:type" content="article">
+<meta property="og:title" content="文章标题">
+<meta property="og:url" content="https://sgahch.github.io/2025/08/14/redis%E5%85%AB%E8%82%A1/index.html">
+<meta property="og:site_name" content="Ynchen Blog">
+<meta property="og:description" content="Redis有哪些基本数据类型?常见应用场景呢？string 缓存对象（JSON&#x2F;XML）、计数器（访问量、点赞数）、分布式锁（setnx），验证码、Session hash 用做传输对象的存储、存储用户信息（id、name、email）、购物车、配置表 list 可以用来做消息队列，存放消息，做顺序存储 set 存相同属性的数据 ，标签（去重）、共同好友、抽奖、随机推荐 zset  排行">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-08-14T00:57:28.000Z">
+<meta property="article:modified_time" content="2025-08-14T01:04:05.013Z">
+<meta property="article:author" content="Ynchen">
+<meta property="article:tag" content="八股">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Ynchen Blog" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Ynchen Blog</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">技术笔记与分享</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://sgahch.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-redis八股" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2025/08/14/redis%E5%85%AB%E8%82%A1/" class="article-date">
+  <time class="dt-published" datetime="2025-08-14T00:57:28.000Z" itemprop="datePublished">2025-08-14</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      文章标题
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>Redis有哪些基本数据类型?常见应用场景呢？<br>string 缓存对象（JSON&#x2F;XML）、计数器（访问量、点赞数）、分布式锁（setnx），验证码、Session</p>
+<p>hash 用做传输对象的存储、存储用户信息（id、name、email）、购物车、配置表</p>
+<p>list 可以用来做消息队列，存放消息，做顺序存储</p>
+<p>set 存相同属性的数据 ，标签（去重）、共同好友、抽奖、随机推荐</p>
+<p>zset  排行版、定时任务（score&#x3D;时间戳）、优先级队列</p>
+<p>bitmap  存大数据量、统计活跃用户、签到、二进制标</p>
+<p>stream 用于做流式存储，比如高可靠消息队列、日志采集</p>
+<p>缓存穿透?击穿?雪崩?<br>缓存穿透：客户端大量请求数据库中和缓存中不存在的数据，导致频繁的请求数据库。</p>
+<p>解决方案：缓存null值到缓存，布隆过滤器过滤、做接口参数校验</p>
+<p>缓存击穿：某个 热点 key 缓存刚好过期，瞬间有大量请求打到数据库。</p>
+<p>解决方案：互斥锁、给key设置逻辑过期时间</p>
+<p>缓存雪崩：大量 key 在同一时间同时失效，请求全都打到数据库，压垮系统。</p>
+<p>解决方案：给key设置随机TTL+ 预热 + 高可用</p>
+<p>你怎么保证缓存与数据库一致性？<br>保证缓存和数据库完全一致性在高并发场景下几乎是不可能的，通常我们采取的策略是尽量减少不一致的时间窗口，同时根据业务选择合适的缓存更新策略。<br>常见做法包括：</p>
+<p>先更新数据库再删除缓存</p>
+<p>这是最常用策略。删除缓存后，下次请求会从数据库重新读取并写入缓存。</p>
+<p>为了避免并发情况下数据不一致，可以采用延迟双删策略：先删缓存 → 更新数据库 → 等一段时间再删缓存一次。等待时间可参考数据库写入并更新缓存的耗时。</p>
+<p>消息队列异步更新缓存</p>
+<p>通过 MQ 异步通知更新缓存，降低数据库压力。</p>
+<p>Canal + MQ 异步更新</p>
+<p>通过数据库 binlog（Canal）监听数据变更，再推送消息给缓存服务。</p>
+<p>分布式锁保证强一致性</p>
+<p>写操作加分布式锁（如 Redis、Zookeeper），确保同一时间只有一个线程可以修改数据库和缓存。</p>
+<p>缺点：性能低，无法高并发写。</p>
+<p>常见缓存更新策略有哪些？<br>策略	描述	适用场景	注意点<br>读穿（Read Through）	读请求先从缓存读，读不到再访问数据库并写入缓存	读多写少	需保证缓存和数据库写入同步<br>写穿（Write Through）	写请求写缓存的同时，缓存自动更新数据库	写少读多	写延迟会影响性能<br>写回（Write Back &#x2F; Asynchronous Write）	写缓存不直接写数据库，由后台异步批量刷新数据库	写多读少	风险：缓存宕机可能丢数据，需持久化机制（如 MySQL redo log）<br>旁路缓存（Cache Aside）	应用直接操作数据库，缓存只作暂存	常用	写操作需要手动更新&#x2F;删除缓存<br>补充原理：</p>
+<p>类似 MySQL 的 Buffer Pool：先写到缓存&#x2F;内存，再异步刷盘。</p>
+<p>操作系统 Page Cache 也是同样原理。</p>
+<p>为什么要删除缓存而不是直接更新？<br>删除缓存比更新缓存操作简单，避免复杂的更新逻辑。<br>更新缓存可能带来并发写冲突：假设线程 A 和 B 同时更新数据，如果 A 先写数据库但 B 先更新缓存，就会导致缓存数据不一致。</p>
+<p>删除缓存失败怎么办？<br>可以采用 延迟双删策略：</p>
+<p>先删除缓存</p>
+<p>更新数据库</p>
+<p>等一段时间再删除缓存一次</p>
+<p>等待时间可参考数据库写入和缓存更新的耗时</p>
+<p>保证并发情况下脏数据不会长期存在</p>
+<p>读写分离的场景下还能保证一致性吗？<br>读写分离存在小概率不一致：主库写入后同步到从库存在延迟，如果同时有请求访问从库，可能读到旧数据。</p>
+<p>解决办法：</p>
+<p>强一致场景加分布式锁</p>
+<p>合理设置缓存过期时间</p>
+<p>部分关键数据读写走主库</p>
+<p>总结面试核心观点<br>缓存一致性很难完全保证，只能尽量减少脏数据存在时间。</p>
+<p>延迟双删：适合读多写少场景，强一致但性能低，写多读少不适合。</p>
+<p>分布式锁：保证强一致性，但牺牲并发性能。</p>
+<p>消息队列 &#x2F; Canal + MQ：异步策略，降低耦合，保证最终一致性（Eventual Consistency）。</p>
+<p>策略选择要结合业务场景：读多写少 vs 写多读少，不同策略效果差异很大。</p>
+<p>Redis的主从同步?持久化机制了解过吗?<br>主从同步（Replication）</p>
+<p>Redis 主从同步是用来保证数据在多个节点之间一致性与高可用的机制。</p>
+<p>全量同步：当从节点第一次连接主节点或者从节点落后过多时，主节点会把整个 RDB 文件发送给从节点，然后从节点加载到内存中。</p>
+<p>增量同步：全量同步完成后，主节点会将后续写操作以命令流的方式同步给从节点。</p>
+<p>同步原理：主节点发送数据时会维护一个“数据偏移量（offset）”，从节点确认接收到的命令，保证主从数据一致。</p>
+<p>哨兵机制（Sentinel）：</p>
+<p>监控节点状态，发现主节点宕机</p>
+<p>进行故障转移（选择复制偏移量最大、优先级高的从节点升级为主节点）</p>
+<p>保证集群可用性和自动恢复</p>
+<p>持久化机制（Persistence）</p>
+<p>Redis 提供两种主要持久化机制：</p>
+<p>RDB（快照）：</p>
+<p>定期生成内存快照保存到磁盘</p>
+<p>优点：效率高、恢复快</p>
+<p>缺点：最近几秒的数据可能丢失</p>
+<p>AOF（Append Only File）：</p>
+<p>记录每条写命令到日志，类似 MySQL binlog</p>
+<p>优点：持久性强，可以配置 fsync 策略保证数据安全</p>
+<p>缺点：日志大时性能开销大</p>
+<p>混合持久化：</p>
+<p>AOF 重写时，将当前内存数据以 RDB 写入 AOF 文件，再追加新命令</p>
+<p>综合 RDB 快速恢复和 AOF 持久性</p>
+<p>Redis为什么快?<br>Redis 之所以快，主要有几个原因：</p>
+<p>内存存储：所有数据都保存在内存中，避免了磁盘 I&#x2F;O 开销，访问速度非常快。</p>
+<p>单线程模型：Redis 使用单线程处理命令，避免多线程上下文切换和锁竞争的开销。</p>
+<p>I&#x2F;O 多路复用：单线程可以同时处理大量客户端连接请求而不阻塞。</p>
+<p>高效数据结构：提供 String、Hash、List、Set、ZSet 等多种数据结构，支持快速查找、排序和聚合操作。</p>
+<p>原子性保证：单条命令天然原子，Lua 脚本可以保证多条命令原子执行，无需锁。</p>
+<p>解释下I&#x2F;O 多路复用模型（Reactor 模型）？<br>Redis 单线程能够处理上千甚至上万并发连接，关键是使用了 I&#x2F;O 多路复用（I&#x2F;O multiplexing） 模型。</p>
+<p>原理：单线程通过一个事件循环，监听所有客户端 socket 的 I&#x2F;O 状态（可读、可写、异常）。</p>
+<p>当某个 socket 可读或可写时，事件循环会通知线程处理该事件，而不是每个连接都占用一个线程。</p>
+<p>常用实现：select、poll、epoll（Linux）、kqueue（BSD&#x2F;macOS）</p>
+<p>优势：</p>
+<p>单线程避免锁竞争，减少上下文切换</p>
+<p>高效处理大量并发连接</p>
+<p>与 Redis 的内存数据结构结合，保证操作快速完成</p>
+<p>形象比喻：就像一个人同时盯着很多电话，当某个电话响了，他马上去接，处理完再继续监听其他电话，而不是每个电话都派一个人去接。</p>
+<p>Redis实现登录机制?<br>1️⃣ 思路：使用 Redis 管理 Session &#x2F; Token<br>用户登录</p>
+<p>用户提交账号密码 → 后端验证数据库</p>
+<p>验证成功后生成 Token（UUID 或 JWT）</p>
+<p>将 Token 和用户信息存入 Redis，并设置 过期时间（TTL）</p>
+<p>登录状态维护</p>
+<p>每次请求带上 Token</p>
+<p>后端在 Redis 中查 Token 是否存在</p>
+<p>存在 → 用户已登录</p>
+<p>不存在 → 登录过期 &#x2F; 未登录</p>
+<p>退出登录</p>
+<p>删除 Redis 中的 Token</p>
+<p>用户请求再校验 Redis，找不到即登出成功</p>
+<p>2️⃣ Redis 数据设计<br>Key: login:token:{token}</p>
+<p>Value: 用户信息 JSON（如 userId、角色等）</p>
+<p>TTL: 根据业务需求设置，例如 30 分钟或 1 天</p>
+<p>示例：Key: login:token:UUID123 Value: {“userId”:1001,”username”:”ynchen”} TTL: 30分钟</p>
+<p>Redis实现防抖和节流?<br>Redis 实现防抖和节流主要利用它的高性能内存存储和 TTL 机制。</p>
+<p>防抖的思路是：每次事件触发时，在 Redis 设置一个带过期时间的 key，如果 key 已存在就忽略操作，只有最后一次触发事件后过期时间到才执行操作，从而避免短时间内重复执行。</p>
+<p>节流的思路是：利用 Redis 的计数器和 TTL，每次请求先自增计数，如果计数超过限制就拒绝请求，否则执行操作，计数器过期后重置，这样可以保证固定时间内执行次数不超过阈值。Redis 的高并发性能和自动过期特性，使其非常适合做分布式防抖和节流。</p>
+<p>bigkey和hotkey如何优化?<br>1️⃣ 概念<br>Big Key（大键）</p>
+<p>指占用内存特别大的 key，例如一个 Hash 包含几十万条字段，或者一个 List&#x2F;ZSet 元素特别多。</p>
+<p>会导致操作耗时过长，阻塞 Redis 单线程，影响其他请求。</p>
+<p>Hot Key（热键）</p>
+<p>指被频繁访问或写入的 key，高并发访问时可能成为性能瓶颈，甚至引发雪崩。</p>
+<p>2️⃣ 优化策略<br>Big Key 优化<br>拆分数据</p>
+<p>将大 Hash、List、ZSet 拆分成多个小 key，降低单个操作耗时。</p>
+<p>例如购物车 10 万商品 → 按用户或分类拆分多个 Hash。</p>
+<p>使用分页或批量操作</p>
+<p>对 List&#x2F;ZSet 使用 LRANGE、ZREVRANGE 分页读取，避免一次性遍历大集合。</p>
+<p>避免频繁操作大 key</p>
+<p>大 key 的写操作最好异步或通过队列处理，减少阻塞。</p>
+<p>Hot Key 优化<br>缓存分片&#x2F;热点拆分</p>
+<p>将一个热点 key 拆成多个小 key，分散访问压力。</p>
+<p>本地缓存 + Redis 二级缓存</p>
+<p>热点数据先在应用内存缓存一部分，减少对 Redis 的频繁访问。</p>
+<p>异步处理写操作</p>
+<p>对热点写请求异步批量更新，降低瞬时压力。</p>
+<p>限流 + 防止雪崩</p>
+<p>设置 TTL + 随机过期，防止热点同时过期造成缓存雪崩。</p>
+<p>3️⃣ 面试亮点<br>Big Key 优化核心是减少单个 key 的操作耗时</p>
+<p>Hot Key 优化核心是分散访问压力、防止瞬时并发打满 Redis</p>
+<p>实际生产中，两者常结合 TTL、异步队列和本地缓存策略使用</p>
+<pre><code>                        版权声明：本文为博主原创文章，遵循 CC 4.0 BY-SA 版权协议，转载请附上原文出处链接和本声明。
+</code></pre>
+<p>原文链接：<a target="_blank" rel="noopener" href="https://blog.csdn.net/2402_88603680/article/details/150337127">https://blog.csdn.net/2402_88603680/article/details/150337127</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://sgahch.github.io/2025/08/14/redis%E5%85%AB%E8%82%A1/" data-id="cmeapeyc50001uge09azwb833" data-title="文章标题" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%85%AB%E8%82%A1/" rel="tag">八股</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2025/08/14/hello-world/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">Hello World</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%85%AB%E8%82%A1/" rel="tag">八股</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/%E5%85%AB%E8%82%A1/" style="font-size: 10px;">八股</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/08/">八月 2025</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2025/08/14/redis%E5%85%AB%E8%82%A1/">文章标题</a>
+          </li>
+        
+          <li>
+            <a href="/2025/08/14/hello-world/">Hello World</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2025 Ynchen<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>
